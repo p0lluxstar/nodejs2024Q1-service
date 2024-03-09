@@ -4,7 +4,6 @@ import { db } from 'src/data/db';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { UpdatePasswordDto } from './dto/UpdatePasswordDto';
 import { v4 as uuidv4 } from 'uuid';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { DataUserWitoutPassword } from 'src/utils/dataUserWitoutPassword';
 import { FindObjectById } from 'src/utils/findDataUserById';
 import { ID_LENGTH } from 'src/utils/constants';
@@ -89,7 +88,7 @@ export class UserService {
     return { ...foundObjectById, password: undefined };
   }
 
-  async deleteUser(id: string, res) {
+  async deleteUser(id: string, res: any) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
