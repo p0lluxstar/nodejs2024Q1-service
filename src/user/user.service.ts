@@ -5,8 +5,8 @@ import { CreateUserDto } from './dto/CreateUserDto';
 import { UpdatePasswordDto } from './dto/UpdatePasswordDto';
 import { v4 as uuidv4 } from 'uuid';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { DataUserWitoutPassword } from 'src/data/utils/dataUserWitoutPassword';
-import { FindObjectById } from 'src/data/utils/findDataUserById';
+import { DataUserWitoutPassword } from 'src/utils/dataUserWitoutPassword';
+import { FindObjectById } from 'src/utils/findDataUserById';
 
 @Injectable()
 export class UserService {

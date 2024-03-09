@@ -1,5 +1,6 @@
 export interface Idb {
   users: Iuser[];
+  artists: Iartist[];
 }
 
 export interface Iuser {
@@ -9,4 +10,10 @@ export interface Iuser {
   version: number;
   createdAt: number;
   updatedAt: number;
+}
+
+export interface Iartist {
+  id: string;
+  name: string;
+  grammy: boolean;
 }
