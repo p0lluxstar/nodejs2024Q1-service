@@ -7,6 +7,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { DataUserWitoutPassword } from 'src/utils/dataUserWitoutPassword';
 import { FindObjectById } from 'src/utils/findDataUserById';
+import { ID_LENGTH } from 'src/utils/constants';
+import { err400, err403, err404 } from 'src/utils/errors';
 
 @Injectable()
 export class UserService {
@@ -15,14 +17,14 @@ export class UserService {
   }
 
   async getUserById(id: string): Promise<Iuser[]> {
-    if (!(id.length === 36)) {
-      throw new HttpException('Invalid id!', HttpStatus.BAD_REQUEST);
+    if (id.length != ID_LENGTH) {
+      err400('Invalid id!');
     }
 
     const foundObjectById = FindObjectById(db.users, id);
 
     if (foundObjectById === undefined) {
-      throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
+      err404('User not found!');
     }
 
     return DataUserWitoutPassword([foundObjectById]);
@@ -33,7 +35,7 @@ export class UserService {
       !(createUserDto.login && typeof createUserDto.login === 'string') ||
       !(createUserDto.password && typeof createUserDto.password === 'string')
     ) {
-      throw new HttpException('Incorrect user data!', HttpStatus.BAD_REQUEST);
+      err400('Incorrect user data!');
     }
 
     const at = new Date().getTime();
@@ -53,8 +55,8 @@ export class UserService {
   }
 
   async putUser(updatePasswordDto: UpdatePasswordDto, id: string) {
-    if (!(id.length === 36)) {
-      throw new HttpException('Invalid id!', HttpStatus.BAD_REQUEST);
+    if (id.length != ID_LENGTH) {
+      err400('Invalid id!');
     }
 
     if (
@@ -67,20 +69,17 @@ export class UserService {
         typeof updatePasswordDto.newPassword === 'string'
       )
     ) {
-      throw new HttpException('Incorrect user data!', HttpStatus.BAD_REQUEST);
+      err400('Incorrect user data!');
     }
 
     const foundObjectById = FindObjectById(db.users, id);
 
     if (foundObjectById === undefined) {
-      throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
+      err404('User not found!');
     }
 
     if (!(foundObjectById.password === updatePasswordDto.oldPassword)) {
-      throw new HttpException(
-        'The old password is not correct!',
-        HttpStatus.FORBIDDEN,
-      );
+      err403('The old password is not correct!');
     }
 
     foundObjectById.password = updatePasswordDto.newPassword;
@@ -91,14 +90,14 @@ export class UserService {
   }
 
   async deleteUser(id: string, res) {
-    if (!(id.length === 36)) {
-      throw new HttpException('Invalid id!', HttpStatus.BAD_REQUEST);
+    if (id.length != ID_LENGTH) {
+      err400('Invalid id!');
     }
 
     const foundObjectById = FindObjectById(db.users, id);
 
     if (foundObjectById === undefined) {
-      throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
+      err404('User not found!');
     }
 
     db.users = db.users.filter((user) => user.id !== id);

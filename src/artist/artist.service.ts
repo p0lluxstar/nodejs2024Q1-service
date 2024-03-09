@@ -4,8 +4,9 @@ import { db } from 'src/data/db';
 import { CreateArtistDto } from './dto/CreateArtistDto';
 import { UpdateArtistDto } from './dto/UpdateArtistDto';
 import { v4 as uuidv4 } from 'uuid';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { FindObjectById } from 'src/utils/findDataUserById';
+import { ID_LENGTH } from 'src/utils/constants';
+import { err400, err404 } from 'src/utils/errors';
 
 @Injectable()
 export class ArtistService {
@@ -14,14 +15,14 @@ export class ArtistService {
   }
 
   async getArtistById(id: string) {
-    if (!(id.length === 36)) {
-      throw new HttpException('Invalid id!', HttpStatus.BAD_REQUEST);
+    if (id.length != ID_LENGTH) {
+      err400('Invalid id!');
     }
 
     const foundObjectById = FindObjectById(db.artists, id);
 
     if (foundObjectById === undefined) {
-      throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
+      err404('Artist not found!');
     }
 
     return foundObjectById;
@@ -32,7 +33,7 @@ export class ArtistService {
       !(createArtistDto.name && typeof createArtistDto.name === 'string') ||
       !(createArtistDto.grammy && typeof createArtistDto.grammy === 'boolean')
     ) {
-      throw new HttpException('Incorrect artist data!', HttpStatus.BAD_REQUEST);
+      err400('Incorrect artist data!');
     }
 
     const dataNewArtist = {
@@ -47,30 +48,41 @@ export class ArtistService {
   }
 
   async putArtist(updateArtistDto: UpdateArtistDto, id: string) {
-    if (!(id.length === 36)) {
-      throw new HttpException('Invalid id!', HttpStatus.BAD_REQUEST);
+    if (id.length != ID_LENGTH) {
+      err400('Invalid id!');
     }
-
-    console.log(updateArtistDto);
-    console.log(updateArtistDto.name, updateArtistDto.grammy);
-    console.log(typeof updateArtistDto.name, typeof updateArtistDto.grammy);
 
     if (
       !(updateArtistDto.name && typeof updateArtistDto.name === 'string') ||
       !(typeof updateArtistDto.grammy === 'boolean')
     ) {
-      throw new HttpException('Incorrect artist data!', HttpStatus.BAD_REQUEST);
+      err400('Incorrect artist data!');
     }
 
     const foundObjectById = FindObjectById(db.artists, id);
 
     if (foundObjectById === undefined) {
-      throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
+      err404('Artist not found!');
     }
 
     foundObjectById.name = updateArtistDto.name;
     foundObjectById.grammy = updateArtistDto.grammy;
 
     return foundObjectById;
+  }
+
+  async deleteArtist(id: string, res) {
+    if (id.length != ID_LENGTH) {
+      err400('Invalid id!');
+    }
+
+    const foundObjectById = FindObjectById(db.artists, id);
+
+    if (foundObjectById === undefined) {
+      err404('Artist not found!');
+    }
+
+    db.artists = db.artists.filter((artists) => artists.id !== id);
+    return res.status(204).send();
   }
 }

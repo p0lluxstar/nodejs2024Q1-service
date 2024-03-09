@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Put, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Res,
+} from '@nestjs/common';
 import { ArtistService } from './artist.service';
 import { CreateArtistDto } from './dto/CreateArtistDto';
 import { UpdateArtistDto } from './dto/UpdateArtistDto';
@@ -28,5 +37,10 @@ export class ArtistController {
     @Param('id') id: string,
   ) {
     return this.artistService.putArtist(updateArtistDto, id);
+  }
+
+  @Delete(':id')
+  async deleteArtist(@Param('id') id: string, @Res() res) {
+    return this.artistService.deleteArtist(id, res);
   }
 }
