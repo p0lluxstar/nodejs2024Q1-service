@@ -17,14 +17,15 @@ export class UserService {
   async getUserById(id: string): Promise<Iuser[]> {
     if (!(id.length === 36)) {
       throw new HttpException('Invalid id!', HttpStatus.BAD_REQUEST);
-    } else {
-      const foundObjectById = db.users.find((obj) => obj.id === id);
-
-      if (foundObjectById === undefined) {
-        throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
-      }
-      return DataUserWitoutPassword([foundObjectById]);
     }
+
+    const foundObjectById = FindObjectById(db.users, id);
+
+    if (foundObjectById === undefined) {
+      throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
+    }
+
+    return DataUserWitoutPassword([foundObjectById]);
   }
 
   async postUser(createUserDto: CreateUserDto) {
@@ -87,5 +88,20 @@ export class UserService {
     foundObjectById.updatedAt = new Date().getTime();
 
     return { ...foundObjectById, password: undefined };
+  }
+
+  async deleteUser(id: string, res) {
+    if (!(id.length === 36)) {
+      throw new HttpException('Invalid id!', HttpStatus.BAD_REQUEST);
+    }
+
+    const foundObjectById = FindObjectById(db.users, id);
+
+    if (foundObjectById === undefined) {
+      throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
+    }
+
+    db.users = db.users.filter((user) => user.id !== id);
+    return res.status(204).send();
   }
 }
