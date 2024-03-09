@@ -1,7 +1,11 @@
-export interface User {
+export interface Idb {
+  users: Iuser[];
+}
+
+export interface Iuser {
   id: string;
   login: string;
-  password: string;
+  password?: string;
   version: number;
   createdAt: number;
   updatedAt: number;

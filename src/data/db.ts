@@ -1,3 +1,5 @@
-export const db = {
-  user: [],
+import { Idb } from 'src/types/interface';
+
+export const db: Idb = {
+  users: [],
 };
