@@ -82,7 +82,7 @@ export class ArtistService {
       err404('Artist not found!');
     }
 
-    db.artists = db.artists.filter((artists) => artists.id !== id);
+    db.artists = db.artists.filter((artist) => artist.id !== id);
     return res.status(204).send();
   }
 }

@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 export const err400 = (errText: string) => {
-  throw new HttpException(`${errText} invalid id!`, HttpStatus.BAD_REQUEST);
+  throw new HttpException(`${errText}`, HttpStatus.BAD_REQUEST);
 };
 
 export const err403 = (errText: string) => {

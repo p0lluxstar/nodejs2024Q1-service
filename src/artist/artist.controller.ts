@@ -40,7 +40,7 @@ export class ArtistController {
   }
 
   @Delete(':id')
-  async deleteArtist(@Param('id') id: string, @Res() res) {
+  async deleteArtist(@Param('id') id: string, @Res() res: any) {
     return this.artistService.deleteArtist(id, res);
   }
 }
