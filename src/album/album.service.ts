@@ -7,6 +7,7 @@ import { err400, err404 } from 'src/utils/errors';
 import { v4 as uuidv4 } from 'uuid';
 import { ID_LENGTH } from 'src/utils/constants';
 import { FindObjectById } from 'src/utils/findDataUserById';
+import { ChangePropertyObjectToNull } from 'src/utils/ChangePropertyObjectToNull';
 
 @Injectable()
 export class AlbumService {
@@ -96,6 +97,9 @@ export class AlbumService {
 
     db.albums = db.albums.filter((album) => album.id !== id);
     db.favs.albums = db.favs.albums.filter((album) => album.id !== id);
+
+    ChangePropertyObjectToNull(db.tracks, id, 'albumId');
+
     return res.status(204).send();
   }
 }

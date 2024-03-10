@@ -1,4 +1,4 @@
-import { Iartist } from 'src/types/interface';
+import { Iartist, Ialbum } from 'src/types/interface';
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
 import { db } from 'src/data/db';
 import { CreateArtistDto } from './dto/CreateArtistDto';
@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { FindObjectById } from 'src/utils/findDataUserById';
 import { ID_LENGTH } from 'src/utils/constants';
 import { err400, err404 } from 'src/utils/errors';
+import { ChangePropertyObjectToNull } from 'src/utils/ChangePropertyObjectToNull';
 
 @Injectable()
 export class ArtistService {
@@ -71,7 +72,7 @@ export class ArtistService {
     return foundObjectById;
   }
 
-  async deleteArtist(id: string, res) {
+  async deleteArtist(id: string, res: any) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
@@ -84,6 +85,10 @@ export class ArtistService {
 
     db.artists = db.artists.filter((artist) => artist.id !== id);
     db.favs.artists = db.favs.artists.filter((artist) => artist.id !== id);
+
+    ChangePropertyObjectToNull(db.albums, id, 'artistId');
+    ChangePropertyObjectToNull(db.tracks, id, 'artistId');
+
     return res.status(204).send();
   }
 }
