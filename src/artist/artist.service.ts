@@ -76,7 +76,7 @@ export class ArtistService {
       err400('Invalid id!');
     }
 
-    const foundObjectById = FindObjectById(db.artists, id);
+    const foundObjectById: Iartist = FindObjectById(db.artists, id);
 
     if (foundObjectById === undefined) {
       err404('Artist not found!');

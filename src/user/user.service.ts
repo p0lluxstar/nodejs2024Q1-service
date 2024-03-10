@@ -93,7 +93,7 @@ export class UserService {
       err400('Invalid id!');
     }
 
-    const foundObjectById = FindObjectById(db.users, id);
+    const foundObjectById: Iuser = FindObjectById(db.users, id);
 
     if (foundObjectById === undefined) {
       err404('User not found!');

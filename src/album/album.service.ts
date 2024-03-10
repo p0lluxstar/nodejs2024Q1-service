@@ -70,7 +70,7 @@ export class AlbumService {
       err400('Invalid album data');
     }
 
-    const foundObjectById = FindObjectById(db.albums, id);
+    const foundObjectById: Ialbum = FindObjectById(db.albums, id);
 
     if (foundObjectById === undefined) {
       err404('Album not found!');
