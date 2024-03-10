@@ -1,4 +1,4 @@
-import { Iartist, Ialbum } from 'src/types/interface';
+import { Iartist } from 'src/types/interface';
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
 import { db } from 'src/data/db';
 import { CreateArtistDto } from './dto/CreateArtistDto';
@@ -8,6 +8,10 @@ import { FindObjectById } from 'src/utils/findDataUserById';
 import { ID_LENGTH } from 'src/utils/constants';
 import { err400, err404 } from 'src/utils/errors';
 import { ChangePropertyObjectToNull } from 'src/utils/ChangePropertyObjectToNull';
+import {
+  RemoveObjectFromArray,
+  RemoveObjectFromArrayTwo,
+} from 'src/utils/removeObjectFromArray';
 
 @Injectable()
 export class ArtistService {
@@ -83,9 +87,8 @@ export class ArtistService {
       err404('Artist not found!');
     }
 
-    db.artists = db.artists.filter((artist) => artist.id !== id);
-    db.favs.artists = db.favs.artists.filter((artist) => artist.id !== id);
-
+    RemoveObjectFromArray(id, 'artists');
+    RemoveObjectFromArrayTwo(id, 'favs', 'artists');
     ChangePropertyObjectToNull(db.albums, id, 'artistId');
     ChangePropertyObjectToNull(db.tracks, id, 'artistId');
 

@@ -8,6 +8,7 @@ import { DataUserWitoutPassword } from 'src/utils/dataUserWitoutPassword';
 import { FindObjectById } from 'src/utils/findDataUserById';
 import { ID_LENGTH } from 'src/utils/constants';
 import { err400, err403, err404 } from 'src/utils/errors';
+import { RemoveObjectFromArray } from 'src/utils/removeObjectFromArray';
 
 @Injectable()
 export class UserService {
@@ -99,7 +100,7 @@ export class UserService {
       err404('User not found!');
     }
 
-    db.users = db.users.filter((user) => user.id !== id);
+    RemoveObjectFromArray(id, 'users');
     return res.status(204).send();
   }
 }

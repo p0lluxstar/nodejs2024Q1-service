@@ -4,6 +4,7 @@ import { db } from 'src/data/db';
 import { err400, err404, err422 } from 'src/utils/errors';
 import { ID_LENGTH } from 'src/utils/constants';
 import { FindObjectById } from 'src/utils/findDataUserById';
+import { RemoveObjectFromArrayTwo } from 'src/utils/removeObjectFromArray';
 
 @Injectable()
 export class FavoriteService {
@@ -101,7 +102,7 @@ export class FavoriteService {
       err404('Artist not found!');
     }
 
-    db.favs.tracks = db.favs.tracks.filter((track) => track.id !== id);
+    RemoveObjectFromArrayTwo(id, 'favs', 'tracks');
     return res.status(204).send();
   }
 }

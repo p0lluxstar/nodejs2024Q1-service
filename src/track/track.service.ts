@@ -7,6 +7,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { ID_LENGTH } from 'src/utils/constants';
 import { FindObjectById } from 'src/utils/findDataUserById';
 import { UpdateTrackDto } from './dto/UpdateTrackDto';
+import {
+  RemoveObjectFromArray,
+  RemoveObjectFromArrayTwo,
+} from 'src/utils/removeObjectFromArray';
 
 @Injectable()
 export class TrackService {
@@ -102,8 +106,8 @@ export class TrackService {
       err404('Track not found!');
     }
 
-    db.tracks = db.tracks.filter((track) => track.id !== id);
-    db.favs.tracks = db.favs.tracks.filter((track) => track.id !== id);
+    RemoveObjectFromArray(id, 'tracks');
+    RemoveObjectFromArrayTwo(id, 'favs', 'tracks');
     return res.status(204).send();
   }
 }
