@@ -95,6 +95,7 @@ export class AlbumService {
     }
 
     db.albums = db.albums.filter((album) => album.id !== id);
+    db.favs.albums = db.favs.albums.filter((album) => album.id !== id);
     return res.status(204).send();
   }
 }

@@ -103,6 +103,7 @@ export class TrackService {
     }
 
     db.tracks = db.tracks.filter((track) => track.id !== id);
+    db.favs.tracks = db.favs.tracks.filter((track) => track.id !== id);
     return res.status(204).send();
   }
 }

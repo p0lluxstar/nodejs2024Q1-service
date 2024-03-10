@@ -83,6 +83,7 @@ export class ArtistService {
     }
 
     db.artists = db.artists.filter((artist) => artist.id !== id);
+    db.favs.artists = db.favs.artists.filter((artist) => artist.id !== id);
     return res.status(204).send();
   }
 }
