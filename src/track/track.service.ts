@@ -98,8 +98,6 @@ export class TrackService {
 
     const foundObjectById = FindObjectById(db.tracks, id);
 
-    console.log(db.tracks);
-
     if (foundObjectById === undefined) {
       err404('Track not found!');
     }

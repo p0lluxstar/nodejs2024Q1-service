@@ -3,6 +3,11 @@ export interface Idb {
   artists: Iartist[];
   tracks: Itrack[];
   albums: Ialbum[];
+  favs: {
+    artists: Iartist[];
+    albums: Ialbum[];
+    tracks: Itrack[];
+  };
 }
 
 export interface Iuser {
@@ -20,6 +25,13 @@ export interface Iartist {
   grammy: boolean;
 }
 
+export interface Ialbum {
+  id: string;
+  name: string;
+  year: number;
+  artistId: string | null;
+}
+
 export interface Itrack {
   id: string;
   name: string;
@@ -28,9 +40,8 @@ export interface Itrack {
   duration: number;
 }
 
-export interface Ialbum {
-  id: string;
-  name: string;
-  year: number;
-  artistId: string | null;
+export interface FavoritesResponse {
+  artists: Iartist[];
+  albums: Ialbum[];
+  tracks: Itrack[];
 }

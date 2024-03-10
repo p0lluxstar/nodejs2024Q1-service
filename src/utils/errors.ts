@@ -11,3 +11,7 @@ export const err403 = (errText: string) => {
 export const err404 = (errText: string) => {
   throw new HttpException(`${errText}`, HttpStatus.NOT_FOUND);
 };
+
+export const err422 = (errText: string) => {
+  throw new HttpException(`${errText}`, HttpStatus.UNPROCESSABLE_ENTITY);
+};
