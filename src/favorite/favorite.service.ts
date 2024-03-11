@@ -9,7 +9,6 @@ import { RemoveObjectFromArrayTwo } from 'src/utils/removeObjectFromArray';
 @Injectable()
 export class FavoriteService {
   getFavs() {
-    console.log(db.favs);
     return db.favs;
   }
 
