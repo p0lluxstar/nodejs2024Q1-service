@@ -1,10 +1,7 @@
-import { Iartist } from 'src/types/interface';
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
-import { db } from 'src/data/db';
 import { CreateArtistDto } from './dto/CreateArtistDto';
 import { UpdateArtistDto } from './dto/UpdateArtistDto';
 import { v4 as uuidv4 } from 'uuid';
-import { FindObjectById } from 'src/utils/findDataUserById';
 import { ID_LENGTH } from 'src/utils/constants';
 import { err400, err404 } from 'src/utils/errors';
 import { ChangePropertyObjectToNull } from 'src/utils/ChangePropertyObjectToNull';
@@ -12,11 +9,19 @@ import {
   RemoveObjectFromArray,
   RemoveObjectFromArrayTwo,
 } from 'src/utils/removeObjectFromArray';
+import { ArtistEntity } from './artist.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ArtistService {
-  async getArtists(): Promise<Iartist[]> {
-    return db.artists;
+  constructor(
+    @InjectRepository(ArtistEntity)
+    private readonly artistRepository: Repository<ArtistEntity>,
+  ) {}
+
+  async getArtists(): Promise<ArtistEntity[]> {
+    return await this.artistRepository.find();
   }
 
   async getArtistById(id: string) {
@@ -24,13 +29,12 @@ export class ArtistService {
       err400('Invalid id!');
     }
 
-    const foundObjectById = FindObjectById(db.artists, id);
-
-    if (foundObjectById === undefined) {
-      err404('Artist not found!');
+    const artistToFind = await this.artistRepository.findOneBy({ id });
+    if (artistToFind === null) {
+      err404('User not found!');
     }
 
-    return foundObjectById;
+    return artistToFind;
   }
 
   async postArtist(createArtistDto: CreateArtistDto) {
@@ -47,9 +51,11 @@ export class ArtistService {
       grammy: createArtistDto.grammy,
     };
 
-    db.artists.push(dataNewArtist);
+    const newArtist = new ArtistEntity();
+    Object.assign(newArtist, dataNewArtist);
+    await this.artistRepository.save(newArtist);
 
-    return dataNewArtist;
+    return newArtist;
   }
 
   async putArtist(updateArtistDto: UpdateArtistDto, id: string) {
@@ -64,16 +70,18 @@ export class ArtistService {
       err400('Incorrect artist data!');
     }
 
-    const foundObjectById = FindObjectById(db.artists, id);
+    const artistToUpdate = await this.artistRepository.findOneBy({ id });
 
-    if (foundObjectById === undefined) {
+    if (!artistToUpdate) {
       err404('Artist not found!');
     }
 
-    foundObjectById.name = updateArtistDto.name;
-    foundObjectById.grammy = updateArtistDto.grammy;
+    artistToUpdate.name = updateArtistDto.name;
+    artistToUpdate.grammy = updateArtistDto.grammy;
 
-    return foundObjectById;
+    await this.artistRepository.save(artistToUpdate);
+
+    return artistToUpdate;
   }
 
   async deleteArtist(id: string, res: any) {
@@ -81,16 +89,16 @@ export class ArtistService {
       err400('Invalid id!');
     }
 
-    const foundObjectById: Iartist = FindObjectById(db.artists, id);
+    const artistToDelete = await this.artistRepository.delete({ id });
 
-    if (foundObjectById === undefined) {
+    if (artistToDelete === undefined) {
       err404('Artist not found!');
     }
 
-    RemoveObjectFromArray(id, 'artists');
+    /* RemoveObjectFromArray(id, 'artists');
     RemoveObjectFromArrayTwo(id, 'favs', 'artists');
     ChangePropertyObjectToNull(db.albums, id, 'artistId');
-    ChangePropertyObjectToNull(db.tracks, id, 'artistId');
+    ChangePropertyObjectToNull(db.tracks, id, 'artistId'); */
 
     return res.status(204).send();
   }

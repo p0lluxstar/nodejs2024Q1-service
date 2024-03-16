@@ -106,7 +106,7 @@ export class UserService {
     }
 
     const userToDelete = await this.userRepository.delete({ id });
-    console.log(userToDelete);
+
     if (userToDelete.affected === 0) {
       err404('User not found!');
     }
