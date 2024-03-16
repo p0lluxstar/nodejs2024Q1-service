@@ -11,11 +11,19 @@ import {
   RemoveObjectFromArray,
   RemoveObjectFromArrayTwo,
 } from 'src/utils/removeObjectFromArray';
+import { TrackEntity } from './track.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class TrackService {
+  constructor(
+    @InjectRepository(TrackEntity)
+    private readonly trackRepository: Repository<TrackEntity>,
+  ) {}
+
   async getTracks(): Promise<Itrack[]> {
-    return db.tracks;
+    return await this.trackRepository.find();
   }
 
   async getTrackById(id: string) {
@@ -23,13 +31,13 @@ export class TrackService {
       err400('Invalid id!');
     }
 
-    const foundObjectById = FindObjectById(db.tracks, id);
+    const trackToFind = await this.trackRepository.findOneBy({ id });
 
-    if (foundObjectById === undefined) {
+    if (trackToFind === null) {
       err404('Track not found!');
     }
 
-    return foundObjectById;
+    return trackToFind;
   }
 
   async postTrack(createTrackDto: CreateTrackDto) {
@@ -48,7 +56,7 @@ export class TrackService {
       err400('Invalid track data');
     }
 
-    const dataNewAlbum = {
+    const newTrack = {
       id: uuidv4(),
       name: createTrackDto.name,
       artistId: createTrackDto.artistId,
@@ -56,9 +64,9 @@ export class TrackService {
       duration: createTrackDto.duration,
     };
 
-    db.tracks.push(dataNewAlbum);
+    await this.trackRepository.save(newTrack);
 
-    return dataNewAlbum;
+    return newTrack;
   }
 
   async putTrack(updateTrackDto: UpdateTrackDto, id: string) {
@@ -81,18 +89,20 @@ export class TrackService {
       err400('Invalid track data');
     }
 
-    const foundObjectById: Itrack = FindObjectById(db.tracks, id);
+    const trackToUpdate = await this.trackRepository.findOneBy({ id });
 
-    if (foundObjectById === undefined) {
+    if (trackToUpdate === null) {
       err404('Track not found!');
     }
+
+    /* const foundObjectById: Itrack = FindObjectById(db.tracks, id);
 
     foundObjectById.name = updateTrackDto.name;
     foundObjectById.artistId = updateTrackDto.artistId;
     foundObjectById.albumId = updateTrackDto.albumId;
-    foundObjectById.duration = updateTrackDto.duration;
+    foundObjectById.duration = updateTrackDto.duration; */
 
-    return foundObjectById;
+    return trackToUpdate;
   }
 
   async deleteTrack(id: string, res: any) {
@@ -100,14 +110,14 @@ export class TrackService {
       err400('Invalid id!');
     }
 
-    const foundObjectById = FindObjectById(db.tracks, id);
+    const trackToDelete = await this.trackRepository.delete({ id });
 
-    if (foundObjectById === undefined) {
+    if (trackToDelete.affected === 0) {
       err404('Track not found!');
     }
 
-    RemoveObjectFromArray(id, 'tracks');
-    RemoveObjectFromArrayTwo(id, 'favs', 'tracks');
+    /* RemoveObjectFromArray(id, 'tracks');
+    RemoveObjectFromArrayTwo(id, 'favs', 'tracks'); */
     return res.status(204).send();
   }
 }

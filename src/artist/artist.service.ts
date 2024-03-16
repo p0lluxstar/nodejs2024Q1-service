@@ -91,7 +91,7 @@ export class ArtistService {
 
     const artistToDelete = await this.artistRepository.delete({ id });
 
-    if (artistToDelete === undefined) {
+    if (artistToDelete.affected === 0) {
       err404('Artist not found!');
     }
 
