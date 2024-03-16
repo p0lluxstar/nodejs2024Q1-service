@@ -6,9 +6,18 @@ import { ArtistModule } from './artist/artist.module';
 import { TrackModule } from './track/track.module';
 import { AlbumModule } from './album/album.module';
 import { FavoriteModule } from './favorite/favorite.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import config from 'ormconfig';
 
 @Module({
-  imports: [UserModule, ArtistModule, TrackModule, AlbumModule, FavoriteModule],
+  imports: [
+    TypeOrmModule.forRoot(config),
+    UserModule,
+    ArtistModule,
+    TrackModule,
+    AlbumModule,
+    FavoriteModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

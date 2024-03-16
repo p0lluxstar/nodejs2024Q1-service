@@ -11,6 +11,7 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { UpdatePasswordDto } from './dto/UpdatePasswordDto';
+import { UserEntity } from './user.entity';
 
 @Controller('user')
 export class UserController {
@@ -18,7 +19,7 @@ export class UserController {
 
   @Get()
   async getUsers() {
-    return this.userService.getUsers();
+    return await this.userService.getUsers();
   }
 
   @Get(':id')
@@ -31,16 +32,16 @@ export class UserController {
     return this.userService.postUser(createUserDto);
   }
 
-  @Put(':id')
+  /*  @Put(':id')
   async putUser(
     @Body() updatePasswordDto: UpdatePasswordDto,
     @Param('id') id: string,
   ) {
     return this.userService.putUser(updatePasswordDto, id);
-  }
+  } */
 
-  @Delete(':id')
+  /*  @Delete(':id')
   async deleteUser(@Param('id') id: string, @Res() res) {
     return this.userService.deleteUser(id, res);
-  }
+  } */
 }

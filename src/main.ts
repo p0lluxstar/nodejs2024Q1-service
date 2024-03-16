@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const PORT = process.env.PORT || '4000';
 
-  await startSwagger(app);
+  /* await startSwagger(app); */
 
   await app.listen(PORT, () =>
     console.log(

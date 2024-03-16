@@ -9,25 +9,43 @@ import { FindObjectById } from 'src/utils/findDataUserById';
 import { ID_LENGTH } from 'src/utils/constants';
 import { err400, err403, err404 } from 'src/utils/errors';
 import { RemoveObjectFromArray } from 'src/utils/removeObjectFromArray';
+import { UserEntity } from './user.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UserService {
-  async getUsers(): Promise<Iuser[]> {
-    return DataUserWitoutPassword(db.users);
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+  ) {}
+
+  async getUsers(): Promise<UserEntity[]> {
+    return await this.userRepository.find();
   }
 
-  async getUserById(id: string): Promise<Iuser[]> {
+  async getUserById(id: string) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
 
-    const foundObjectById = FindObjectById(db.users, id);
+    const dataUser = await this.userRepository.findOneBy({ id });
+    if (dataUser === null) {
+      err404('User not found!');
+    }
+
+    return {
+      ...dataUser,
+      password: undefined,
+    };
+
+    /* const foundObjectById = FindObjectById(db.users, id);
 
     if (foundObjectById === undefined) {
       err404('User not found!');
     }
 
-    return DataUserWitoutPassword([foundObjectById]);
+    return DataUserWitoutPassword([foundObjectById]); */
   }
 
   async postUser(createUserDto: CreateUserDto) {
@@ -37,6 +55,26 @@ export class UserService {
     ) {
       err400('Incorrect user data!');
     }
+
+    const at = Math.round(new Date().getTime() / 1000);
+
+    const dataNewUser = {
+      id: uuidv4(),
+      login: createUserDto.login,
+      password: createUserDto.password,
+      version: 1,
+      createdAt: at,
+      updatedAt: at,
+    };
+
+    const newUser = new UserEntity();
+    Object.assign(newUser, dataNewUser);
+    await this.userRepository.save(newUser);
+    return {
+      ...dataNewUser,
+      password: undefined,
+    };
+    /* 
 
     const at = new Date().getTime();
 
@@ -51,10 +89,10 @@ export class UserService {
 
     db.users.push(dataNewUser);
 
-    return { ...dataNewUser, password: undefined };
+    return { ...dataNewUser, password: undefined }; */
   }
 
-  async putUser(updatePasswordDto: UpdatePasswordDto, id: string) {
+  /* async putUser(updatePasswordDto: UpdatePasswordDto, id: string) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
@@ -87,9 +125,9 @@ export class UserService {
     foundObjectById.updatedAt = new Date().getTime();
 
     return { ...foundObjectById, password: undefined };
-  }
+  } */
 
-  async deleteUser(id: string, res: any) {
+  /* async deleteUser(id: string, res: any) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
@@ -102,5 +140,5 @@ export class UserService {
 
     RemoveObjectFromArray(id, 'users');
     return res.status(204).send();
-  }
+  } */
 }
