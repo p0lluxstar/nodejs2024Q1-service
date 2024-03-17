@@ -12,25 +12,32 @@ import {
   RemoveObjectFromArray,
   RemoveObjectFromArrayTwo,
 } from 'src/utils/removeObjectFromArray';
+import { AlbumEntity } from './album.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AlbumService {
+  constructor(
+    @InjectRepository(AlbumEntity)
+    private readonly albumRepository: Repository<AlbumEntity>,
+  ) {}
   async getAlbums(): Promise<Ialbum[]> {
-    return db.albums;
+    return await this.albumRepository.find();
   }
 
-  async getAlbumById(id: string): Promise<Ialbum[]> {
+  async getAlbumById(id: string): Promise<Ialbum> {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
 
-    const foundObjectById = FindObjectById(db.albums, id);
+    const albumToFind = await this.albumRepository.findOneBy({ id });
 
-    if (foundObjectById === undefined) {
+    if (albumToFind === null) {
       err404('Album not found!');
     }
 
-    return foundObjectById;
+    return albumToFind;
   }
 
   async postAlbum(createAlbumDto: CreateAlbumDto) {
@@ -46,16 +53,16 @@ export class AlbumService {
       err400('Invalid album data');
     }
 
-    const dataNewAlbum = {
+    const newAlbum = {
       id: uuidv4(),
       name: createAlbumDto.name,
       year: createAlbumDto.year,
       artistId: createAlbumDto.artistId,
     };
 
-    db.albums.push(dataNewAlbum);
+    await this.albumRepository.save(newAlbum);
 
-    return dataNewAlbum;
+    return newAlbum;
   }
 
   async putAlbum(updateAlbumDto: UpdateAlbumDto, id: string) {
@@ -75,17 +82,17 @@ export class AlbumService {
       err400('Invalid album data');
     }
 
-    const foundObjectById: Ialbum = FindObjectById(db.albums, id);
+    const albumToUpdate = await this.albumRepository.findOneBy({ id });
 
-    if (foundObjectById === undefined) {
+    if (albumToUpdate === null) {
       err404('Album not found!');
     }
 
-    foundObjectById.name = updateAlbumDto.name;
-    foundObjectById.year = updateAlbumDto.year;
-    foundObjectById.artistId = updateAlbumDto.artistId;
+    albumToUpdate.name = updateAlbumDto.name;
+    albumToUpdate.year = updateAlbumDto.year;
+    albumToUpdate.artistId = updateAlbumDto.artistId;
 
-    return foundObjectById;
+    return albumToUpdate;
   }
 
   async deleteAlbum(id: string, res: any) {
@@ -93,15 +100,15 @@ export class AlbumService {
       err400('Invalid id!');
     }
 
-    const foundObjectById = FindObjectById(db.albums, id);
+    const albumToDelete = await this.albumRepository.delete({ id });
 
-    if (foundObjectById === undefined) {
+    if (albumToDelete.affected === 0) {
       err404('Album not found!');
     }
 
-    RemoveObjectFromArray(id, 'albums');
+    /*  RemoveObjectFromArray(id, 'albums');
     RemoveObjectFromArrayTwo(id, 'favs', 'albums');
-    ChangePropertyObjectToNull(db.tracks, id, 'albumId');
+    ChangePropertyObjectToNull(db.tracks, id, 'albumId'); */
 
     return res.status(204).send();
   }
