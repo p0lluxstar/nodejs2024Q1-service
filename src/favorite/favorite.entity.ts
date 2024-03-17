@@ -15,5 +15,5 @@ export class FavoriteEntity {
   @Column('simple-array')
   tracks: string[];
 
-  @ManyToOne(() => ArtistEntity, (artist) => artist.id) artist: ArtistEntity;
+  /* @ManyToOne(() => ArtistEntity, (artist) => artist.id) artist: ArtistEntity; */
 }

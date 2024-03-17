@@ -95,6 +95,8 @@ export class ArtistService {
       err404('Artist not found!');
     }
 
+    await this.artistRepository.delete(id);
+
     /* RemoveObjectFromArray(id, 'artists');
     RemoveObjectFromArrayTwo(id, 'favs', 'artists');
     ChangePropertyObjectToNull(db.albums, id, 'artistId');
