@@ -33,7 +33,7 @@ export class TrackService {
 
     const trackToFind = await this.trackRepository.findOneBy({ id });
 
-    if (trackToFind === null) {
+    if (!trackToFind) {
       err404('Track not found!');
     }
 
@@ -91,7 +91,7 @@ export class TrackService {
 
     const trackToUpdate = await this.trackRepository.findOneBy({ id });
 
-    if (trackToUpdate === null) {
+    if (!trackToUpdate) {
       err404('Track not found!');
     }
 

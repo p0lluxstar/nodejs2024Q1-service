@@ -33,7 +33,7 @@ export class AlbumService {
 
     const albumToFind = await this.albumRepository.findOneBy({ id });
 
-    if (albumToFind === null) {
+    if (!albumToFind) {
       err404('Album not found!');
     }
 
@@ -84,7 +84,7 @@ export class AlbumService {
 
     const albumToUpdate = await this.albumRepository.findOneBy({ id });
 
-    if (albumToUpdate === null) {
+    if (!albumToUpdate) {
       err404('Album not found!');
     }
 

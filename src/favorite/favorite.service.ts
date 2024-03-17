@@ -5,19 +5,44 @@ import { err400, err404, err422 } from 'src/utils/errors';
 import { ID_LENGTH } from 'src/utils/constants';
 import { FindObjectById } from 'src/utils/findDataUserById';
 import { RemoveObjectFromArrayTwo } from 'src/utils/removeObjectFromArray';
+import { FavoriteEntity } from './favorite.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class FavoriteService {
-  getFavs() {
-    return db.favs;
+  constructor(
+    @InjectRepository(FavoriteEntity)
+    private readonly favoriteEntity: Repository<FavoriteEntity>,
+  ) {}
+  async getFavs() {
+    const favorites = await this.favoriteEntity.findOne({ where: { id: 1 } });
+
+    if (!favorites) {
+      return { artists: [], albums: [], tracks: [] };
+    }
+
+    return favorites;
   }
 
-  postFavsArtist(id: string) {
+  async postFavsArtist(id: string) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
 
-    const foundObjectById: Iartist = FindObjectById(db.artists, id);
+    const favorite = await this.favoriteEntity.findOne({ where: { id: 1 } });
+
+    if (!favorite) {
+      err422('Artist not found!');
+    }
+
+    // Добавляем нового артиста в массив
+    favorite.artists.push('Новый артист');
+
+    // Сохраняем изменения в базе данных
+    await this.favoriteEntity.save(favorite);
+
+    /* const foundObjectById: Iartist = FindObjectById(db.artists, id);
 
     if (foundObjectById === undefined) {
       err422('Artist not found!');
@@ -25,10 +50,9 @@ export class FavoriteService {
 
     db.favs.artists.push(foundObjectById);
 
-    return foundObjectById;
+    return foundObjectById; */
   }
-
-  postFavsAlbum(id: string) {
+  /* postFavsAlbum(id: string) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
@@ -42,9 +66,8 @@ export class FavoriteService {
     db.favs.albums.push(foundObjectById);
 
     return foundObjectById;
-  }
-
-  postFavsTrack(id: string) {
+  }*/
+  /* postFavsTrack(id: string) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
@@ -58,9 +81,8 @@ export class FavoriteService {
     db.favs.tracks.push(foundObjectById);
 
     return foundObjectById;
-  }
-
-  deleteFavsArtist(id: string, res: any) {
+  } */
+  /* deleteFavsArtist(id: string, res: any) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
@@ -73,9 +95,8 @@ export class FavoriteService {
 
     db.favs.artists = db.favs.artists.filter((artist) => artist.id !== id);
     return res.status(204).send();
-  }
-
-  deleteFavsAlbum(id: string, res: any) {
+  } */
+  /* deleteFavsAlbum(id: string, res: any) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
@@ -88,9 +109,8 @@ export class FavoriteService {
 
     db.favs.albums = db.favs.albums.filter((album) => album.id !== id);
     return res.status(204).send();
-  }
-
-  deleteFavsTrack(id: string, res: any) {
+  } */
+  /* deleteFavsTrack(id: string, res: any) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
@@ -103,5 +123,5 @@ export class FavoriteService {
 
     RemoveObjectFromArrayTwo(id, 'favs', 'tracks');
     return res.status(204).send();
-  }
+  } */
 }

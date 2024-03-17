@@ -25,7 +25,7 @@ export class UserService {
     }
 
     const userToFind = await this.userRepository.findOneBy({ id });
-    if (userToFind === null) {
+    if (!userToFind) {
       err404('User not found!');
     }
 

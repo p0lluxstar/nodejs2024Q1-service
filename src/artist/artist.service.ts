@@ -30,7 +30,7 @@ export class ArtistService {
     }
 
     const artistToFind = await this.artistRepository.findOneBy({ id });
-    if (artistToFind === null) {
+    if (!artistToFind) {
       err404('User not found!');
     }
 
