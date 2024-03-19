@@ -1,25 +1,23 @@
 import { Itrack } from 'src/types/interface';
 import { CreateTrackDto } from './dto/CreateTrackDto';
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
-import { db } from 'src/data/db';
 import { err400, err404 } from 'src/utils/errors';
 import { v4 as uuidv4 } from 'uuid';
 import { ID_LENGTH } from 'src/utils/constants';
-import { FindObjectById } from 'src/utils/findDataUserById';
 import { UpdateTrackDto } from './dto/UpdateTrackDto';
-import {
-  RemoveObjectFromArray,
-  RemoveObjectFromArrayTwo,
-} from 'src/utils/removeObjectFromArray';
 import { TrackEntity } from './track.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FavoriteEntity } from 'src/favorite/favorite.entity';
 
 @Injectable()
 export class TrackService {
   constructor(
     @InjectRepository(TrackEntity)
     private readonly trackRepository: Repository<TrackEntity>,
+
+    @InjectRepository(FavoriteEntity)
+    private readonly favoriteRepository: Repository<FavoriteEntity>,
   ) {}
 
   async getTracks(): Promise<Itrack[]> {
@@ -95,13 +93,6 @@ export class TrackService {
       err404('Track not found!');
     }
 
-    /* const foundObjectById: Itrack = FindObjectById(db.tracks, id);
-
-    foundObjectById.name = updateTrackDto.name;
-    foundObjectById.artistId = updateTrackDto.artistId;
-    foundObjectById.albumId = updateTrackDto.albumId;
-    foundObjectById.duration = updateTrackDto.duration; */
-
     return trackToUpdate;
   }
 
@@ -116,8 +107,14 @@ export class TrackService {
       err404('Track not found!');
     }
 
-    /* RemoveObjectFromArray(id, 'tracks');
-    RemoveObjectFromArrayTwo(id, 'favs', 'tracks'); */
+    await this.favoriteRepository
+      .createQueryBuilder()
+      .delete()
+      .where('tracks = :tracks', {
+        tracks: id,
+      })
+      .execute();
+
     return res.status(204).send();
   }
 }

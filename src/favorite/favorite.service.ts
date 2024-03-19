@@ -1,28 +1,71 @@
-import { Iartist, Ialbum, Itrack } from 'src/types/interface';
 import { Injectable } from '@nestjs/common';
-import { db } from 'src/data/db';
-import { err400, err404, err422 } from 'src/utils/errors';
+import { err400, err422 } from 'src/utils/errors';
 import { ID_LENGTH } from 'src/utils/constants';
-import { FindObjectById } from 'src/utils/findDataUserById';
-import { RemoveObjectFromArrayTwo } from 'src/utils/removeObjectFromArray';
 import { FavoriteEntity } from './favorite.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ArtistEntity } from 'src/artist/artist.entity';
+import { AlbumEntity } from 'src/album/album.entity';
+import { TrackEntity } from 'src/track/track.entity';
 
 @Injectable()
 export class FavoriteService {
   constructor(
     @InjectRepository(FavoriteEntity)
-    private readonly favoriteEntity: Repository<FavoriteEntity>,
+    private readonly favoriteRepository: Repository<FavoriteEntity>,
+
+    @InjectRepository(ArtistEntity)
+    private readonly artistRepository: Repository<ArtistEntity>,
+
+    @InjectRepository(AlbumEntity)
+    private readonly albumRepository: Repository<AlbumEntity>,
+
+    @InjectRepository(TrackEntity)
+    private readonly trackRepository: Repository<TrackEntity>,
   ) {}
   async getFavs() {
-    const favorites = await this.favoriteEntity.findOne({ where: { id: 1 } });
+    const favorites = await this.favoriteRepository.find();
 
-    if (!favorites) {
-      return { artists: [], albums: [], tracks: [] };
+    const dataFavorites = { artists: [], albums: [], tracks: [] };
+
+    if (favorites.length === 0) {
+      return dataFavorites;
     }
 
-    return favorites;
+    const artistsInFavorites = favorites
+      .map((favorite) => favorite.artists[0])
+      .filter((item) => item !== '[]');
+
+    for (const artistId of artistsInFavorites) {
+      const artistToFind = await this.artistRepository.findOneBy({
+        id: artistId,
+      });
+      dataFavorites.artists.push(artistToFind);
+    }
+
+    const albumsInFavorites = favorites
+      .map((favorite) => favorite.albums[0])
+      .filter((item) => item !== '[]');
+
+    for (const albumId of albumsInFavorites) {
+      const albumToFind = await this.albumRepository.findOneBy({
+        id: albumId,
+      });
+      dataFavorites.albums.push(albumToFind);
+    }
+
+    const tracksInFavorites = favorites
+      .map((favorite) => favorite.tracks[0])
+      .filter((item) => item !== '[]');
+
+    for (const trackId of tracksInFavorites) {
+      const trackToFind = await this.trackRepository.findOneBy({
+        id: trackId,
+      });
+      dataFavorites.tracks.push(trackToFind);
+    }
+
+    return dataFavorites;
   }
 
   async postFavsArtist(id: string) {
@@ -30,98 +73,112 @@ export class FavoriteService {
       err400('Invalid id!');
     }
 
-    const favorite = await this.favoriteEntity.findOne({ where: { id: 1 } });
+    const artist = await this.artistRepository.findOneBy({ id });
 
-    if (!favorite) {
+    if (!artist) {
       err422('Artist not found!');
     }
 
-    // Добавляем нового артиста в массив
-    favorite.artists.push('Новый артист');
+    const favorite = new FavoriteEntity();
 
-    // Сохраняем изменения в базе данных
-    await this.favoriteEntity.save(favorite);
+    favorite.artists = [id];
 
-    /* const foundObjectById: Iartist = FindObjectById(db.artists, id);
+    await this.favoriteRepository.save(favorite);
 
-    if (foundObjectById === undefined) {
-      err422('Artist not found!');
-    }
+    const artistToFind = await this.artistRepository.findOneBy({ id });
 
-    db.favs.artists.push(foundObjectById);
-
-    return foundObjectById; */
+    return artistToFind;
   }
-  /* postFavsAlbum(id: string) {
+
+  async postFavsAlbum(id: string) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
 
-    const foundObjectById: Ialbum = FindObjectById(db.albums, id);
+    const album = await this.albumRepository.findOneBy({ id });
 
-    if (foundObjectById === undefined) {
+    if (!album) {
       err422('Album not found!');
     }
 
-    db.favs.albums.push(foundObjectById);
+    const favorite = new FavoriteEntity();
 
-    return foundObjectById;
-  }*/
-  /* postFavsTrack(id: string) {
+    favorite.albums = [id];
+
+    await this.favoriteRepository.save(favorite);
+
+    const albumToFind = await this.albumRepository.findOneBy({ id });
+
+    return albumToFind;
+  }
+
+  async postFavsTrack(id: string) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
 
-    const foundObjectById: Itrack = FindObjectById(db.tracks, id);
+    const track = await this.trackRepository.findOneBy({ id });
 
-    if (foundObjectById === undefined) {
-      err422('Track not found!');
+    if (!track) {
+      err422('Album not found!');
     }
 
-    db.favs.tracks.push(foundObjectById);
+    const favorite = new FavoriteEntity();
 
-    return foundObjectById;
-  } */
-  /* deleteFavsArtist(id: string, res: any) {
+    favorite.tracks = [id];
+
+    await this.favoriteRepository.save(favorite);
+
+    const trackToFind = await this.trackRepository.findOneBy({ id });
+
+    return trackToFind;
+  }
+
+  async deleteFavsArtist(id: string, res: any) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
 
-    const foundObjectById = FindObjectById(db.artists, id);
+    await this.favoriteRepository
+      .createQueryBuilder()
+      .delete()
+      .where('artists = :artists', {
+        artists: id,
+      })
+      .execute();
 
-    if (foundObjectById === undefined) {
-      err404('Artist not found!');
-    }
-
-    db.favs.artists = db.favs.artists.filter((artist) => artist.id !== id);
     return res.status(204).send();
-  } */
-  /* deleteFavsAlbum(id: string, res: any) {
+  }
+
+  async deleteFavsAlbum(id: string, res: any) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
 
-    const foundObjectById = FindObjectById(db.albums, id);
+    await this.favoriteRepository
+      .createQueryBuilder()
+      .delete()
+      .where('albums = :albums', {
+        albums: id,
+      })
+      .execute();
 
-    if (foundObjectById === undefined) {
-      err404('Artist not found!');
-    }
-
-    db.favs.albums = db.favs.albums.filter((album) => album.id !== id);
     return res.status(204).send();
-  } */
-  /* deleteFavsTrack(id: string, res: any) {
+  }
+
+  async deleteFavsTrack(id: string, res: any) {
     if (id.length != ID_LENGTH) {
       err400('Invalid id!');
     }
 
-    const foundObjectById = FindObjectById(db.tracks, id);
+    await this.favoriteRepository
+      .createQueryBuilder()
+      .delete()
+      .where('tracks = :tracks', {
+        tracks: id,
+      })
+      .execute();
 
-    if (foundObjectById === undefined) {
-      err404('Artist not found!');
-    }
-
-    RemoveObjectFromArrayTwo(id, 'favs', 'tracks');
     return res.status(204).send();
-  } */
+  }
 }

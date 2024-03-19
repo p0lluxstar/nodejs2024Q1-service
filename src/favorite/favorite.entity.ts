@@ -1,19 +1,17 @@
-import { Entity, Column, PrimaryColumn, ManyToOne } from 'typeorm';
-import { ArtistEntity } from 'src/artist/artist.entity';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'favorites' })
 export class FavoriteEntity {
-  @PrimaryColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @Column('simple-array')
+  @Column('simple-array', { default: [] })
   artists: string[];
 
-  @Column('simple-array')
+  @Column('simple-array', { default: [] })
   albums: string[];
 
-  @Column('simple-array')
+  @Column('simple-array', { default: [] })
   tracks: string[];
-
-  /* @ManyToOne(() => ArtistEntity, (artist) => artist.id) artist: ArtistEntity; */
+  albumId: any;
 }

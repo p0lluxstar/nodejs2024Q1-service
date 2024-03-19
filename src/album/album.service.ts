@@ -1,26 +1,23 @@
 import { Ialbum } from 'src/types/interface';
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
-import { db } from 'src/data/db';
 import { CreateAlbumDto } from './dto/CreateAlbumDto';
 import { UpdateAlbumDto } from './dto/UpdateAlbumDto';
 import { err400, err404 } from 'src/utils/errors';
 import { v4 as uuidv4 } from 'uuid';
 import { ID_LENGTH } from 'src/utils/constants';
-import { FindObjectById } from 'src/utils/findDataUserById';
-import { ChangePropertyObjectToNull } from 'src/utils/ChangePropertyObjectToNull';
-import {
-  RemoveObjectFromArray,
-  RemoveObjectFromArrayTwo,
-} from 'src/utils/removeObjectFromArray';
 import { AlbumEntity } from './album.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FavoriteEntity } from 'src/favorite/favorite.entity';
 
 @Injectable()
 export class AlbumService {
   constructor(
     @InjectRepository(AlbumEntity)
     private readonly albumRepository: Repository<AlbumEntity>,
+
+    @InjectRepository(FavoriteEntity)
+    private readonly favoriteRepository: Repository<FavoriteEntity>,
   ) {}
   async getAlbums(): Promise<Ialbum[]> {
     return await this.albumRepository.find();
@@ -106,9 +103,13 @@ export class AlbumService {
       err404('Album not found!');
     }
 
-    /*  RemoveObjectFromArray(id, 'albums');
-    RemoveObjectFromArrayTwo(id, 'favs', 'albums');
-    ChangePropertyObjectToNull(db.tracks, id, 'albumId'); */
+    await this.favoriteRepository
+      .createQueryBuilder()
+      .delete()
+      .where('albums = :albums', {
+        albums: id,
+      })
+      .execute();
 
     return res.status(204).send();
   }

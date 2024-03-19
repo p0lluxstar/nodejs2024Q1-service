@@ -4,20 +4,19 @@ import { UpdateArtistDto } from './dto/UpdateArtistDto';
 import { v4 as uuidv4 } from 'uuid';
 import { ID_LENGTH } from 'src/utils/constants';
 import { err400, err404 } from 'src/utils/errors';
-import { ChangePropertyObjectToNull } from 'src/utils/ChangePropertyObjectToNull';
-import {
-  RemoveObjectFromArray,
-  RemoveObjectFromArrayTwo,
-} from 'src/utils/removeObjectFromArray';
 import { ArtistEntity } from './artist.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FavoriteEntity } from 'src/favorite/favorite.entity';
 
 @Injectable()
 export class ArtistService {
   constructor(
     @InjectRepository(ArtistEntity)
     private readonly artistRepository: Repository<ArtistEntity>,
+
+    @InjectRepository(FavoriteEntity)
+    private readonly favoriteRepository: Repository<FavoriteEntity>,
   ) {}
 
   async getArtists(): Promise<ArtistEntity[]> {
@@ -95,12 +94,13 @@ export class ArtistService {
       err404('Artist not found!');
     }
 
-    await this.artistRepository.delete(id);
-
-    /* RemoveObjectFromArray(id, 'artists');
-    RemoveObjectFromArrayTwo(id, 'favs', 'artists');
-    ChangePropertyObjectToNull(db.albums, id, 'artistId');
-    ChangePropertyObjectToNull(db.tracks, id, 'artistId'); */
+    await this.favoriteRepository
+      .createQueryBuilder()
+      .delete()
+      .where('artists = :artists', {
+        artists: id,
+      })
+      .execute();
 
     return res.status(204).send();
   }
