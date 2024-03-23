@@ -26,7 +26,7 @@ import conf from './conf';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true,
+        synchronize: false,
       }),
     }),
     UserModule,
