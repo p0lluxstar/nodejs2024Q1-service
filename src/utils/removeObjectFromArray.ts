@@ -1,4 +1,4 @@
-import { db } from 'src/data/db';
+import { db } from 'src/data/db_old';
 
 export const RemoveObjectFromArray = (id, property) => {
   db[property] = db[property].filter((item) => item.id !== id);

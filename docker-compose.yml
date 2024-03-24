@@ -3,21 +3,29 @@ version: '3.8'
 services:
   db:
     container_name: db
-    image: postgres
+    build:
+      context: .
+      dockerfile: ./Dockerfile.db
+    image: p0lluxstar/rss_db
+    restart: always
     environment:
       - POSTGRES_DB=${DB_DATABASE}
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
-      - postgres:/data/postgres
+      - db-data:/var/lib/postgresql/data
+      - db-logs:/var/log/postgresql
     networks:
-      - postgres
+      - netservise
     ports:
       - '${DB_PORT}:${DB_PORT}'
   app:
+    image: p0lluxstar/rss_app
+    restart: always
     container_name: app
     build:
-      dockerfile: ./Dockerfile
+      context: .
+      dockerfile: ./Dockerfile.app
     depends_on:
       - db
     ports:
@@ -32,11 +40,12 @@ services:
       - DB_PORT=${DB_PORT}
       - DB_HOST=db
     networks:
-      - postgres
+      - netservise
 
 networks:
-  postgres:
+  netservise:
     driver: bridge
 
 volumes:
-  postgres:
+  db-data:
+  db-logs:
