@@ -22,14 +22,13 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "docker:up": "docker-compose up",
     "docker:build": "docker-compose build",
-    "docker:scan": "docker scout cves p0lluxstar/rss_db && docker scout cves p0lluxstar/rss_app",
+    "docker:scan": "docker scout cves p0lluxstar/rss_nodejs_db:1.1 && docker scout cves p0lluxstar/rss_nodejs_app:1.1",
     "typeorm": "ts-node --require tsconfig-paths/register ./node_modules/typeorm/cli",
     "migration:run": "npm run typeorm migration:run -- -d ./db/typeorm.config.ts",
     "migration:generate": "npm run typeorm -- -d ./db/typeorm.config.ts migration:generate ./db/migrations/%npm_config_name%",
     "migration:create": "npm run typeorm -- migration:create ./db/migrations/%npm_config_name%",
     "migration:revert": "npm run typeorm -- -d ./db/typeorm.config.ts migration:revert",
     "migration:show": "npm run typeorm -- migration:show -d ./db/typeorm.config.ts"
-  
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
@@ -72,6 +71,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.2.5",
+    "nodemon": "^3.1.0",
     "prettier": "^2.3.2",
     "source-map-support": "^0.5.20",
     "supertest": "^6.2.3",

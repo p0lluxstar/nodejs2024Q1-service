@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile.db
-    image: p0lluxstar/rss_db
+    image: p0lluxstar/rss_nodejs_db:1.1
     restart: always
     environment:
       - POSTGRES_DB=${DB_DATABASE}
@@ -20,7 +20,7 @@ services:
     ports:
       - '${DB_PORT}:${DB_PORT}'
   app:
-    image: p0lluxstar/rss_app
+    image: p0lluxstar/rss_nodejs_app:1.1
     restart: always
     container_name: app
     build:
@@ -41,6 +41,8 @@ services:
       - DB_HOST=db
     networks:
       - netservise
+    volumes:
+      - ./src:/user/app/src
 
 networks:
   netservise:
