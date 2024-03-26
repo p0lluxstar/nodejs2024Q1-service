@@ -5,27 +5,36 @@
 - Git - [Download & Install Git](https://git-scm.com/downloads).
 - Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
 
-## Downloading
+## Installation
 
+1. Create a local copy of the repository at the specified URL on GitHub.
 ```
-git clone {repository URL}
+git clone https://github.com/p0lluxstar/nodejs2024Q1-service.git
 ```
-
-## Installing NPM modules
-
+2. Go to the directory named nodejs2024Q1-service.
+```
+cd nodejs2024Q1-service
+```
+3. Switch to the dev branch in the local copy of the repository
+```
+git checkout docker-postgresql
+```
+4. Install all project dependencies specified in the package.json file
 ```
 npm install
 ```
-
-## Running application
-
+5. Run all containers described in the docker-compose.yml file
 ```
-npm start
+npm run docker:up
 ```
-
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
+6. Creating a new migration file
+```
+npm run migration:generate --name='create_tables'
+```
+7. Apply all pending migrations to the database
+```
+npm run migration:run
+```
 
 ## Testing
 
@@ -41,18 +50,6 @@ To run only one of all test suites
 
 ```
 npm run test -- <path to suite>
-```
-
-To run all test with authorization
-
-```
-npm run test:auth
-```
-
-To run only specific test suite with authorization
-
-```
-npm run test:auth -- <path to suite>
 ```
 
 ### Auto-fix and format

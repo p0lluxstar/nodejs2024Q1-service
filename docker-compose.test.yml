@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db:
+    container_name: db
+    image: postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres:/data/postgres
+    networks:
+      - postgres
+    ports:
+      - '5432:5432'
+  app:
+    container_name: app
+    image: p0lluxstar/nestjs-rsschool
+    depends_on:
+      - db
+    ports:
+      - '4000:4000'
+    environment:
+      - API_PORT=4000
+      - API_HOST=http://localhost
+      - DB_CONNECTION=postgres
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=postgres
+      - DB_PORT=5432
+      - DB_HOST=db
+    networks:
+      - postgres
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  postgres:

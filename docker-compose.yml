@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  db:
+    container_name: db
+    build:
+      context: .
+      dockerfile: ./Dockerfile.db
+    image: p0lluxstar/rss_nodejs_db:1.1
+    restart: always
+    environment:
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - db-logs:/var/log/postgresql
+    networks:
+      - netservise
+    ports:
+      - '${DB_PORT}:${DB_PORT}'
+  app:
+    image: p0lluxstar/rss_nodejs_app:1.1
+    restart: always
+    container_name: app
+    build:
+      context: .
+      dockerfile: ./Dockerfile.app
+    depends_on:
+      - db
+    ports:
+      - '${API_PORT}:${API_PORT}'
+    environment:
+      - API_PORT=${API_PORT}
+      - API_HOST=${API_HOST}
+      - DB_CONNECTION=${DB_CONNECTION}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_PORT=${DB_PORT}
+      - DB_HOST=db
+    networks:
+      - netservise
+    volumes:
+      - ./src:/user/app/src
+
+networks:
+  netservise:
+    driver: bridge
+
+volumes:
+  db-data:
+  db-logs:
